@@ -267,25 +267,6 @@ Content-Type: application/json
 }
 ```
 
-## 🐛 Known Issues
-
-- Password reset token should be hashed before storing (security enhancement needed)
-- Seat availability checking needs to be implemented before reservation
-- Transaction support needed for reservation + seat assignment
-
-## 🚀 Future Enhancements
-
-- [ ] Add seat availability real-time checking
-- [ ] Implement transaction support for reservations
-- [ ] Add pagination to all list endpoints
-- [ ] Add rate limiting for API security
-- [ ] Implement caching for frequently accessed data
-- [ ] Add comprehensive input validation
-- [ ] Create automated tests
-- [ ] Add API documentation with Swagger
-- [ ] Implement email notifications for bookings
-- [ ] Add booking cancellation feature
-
 ## 👨‍💻 Author
 
 **Sania Shafeeq**
