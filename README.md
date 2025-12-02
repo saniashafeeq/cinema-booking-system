@@ -287,10 +287,5 @@ Feel free to check the [issues page](https://github.com/saniashafeeq/cinema-book
 Give a ⭐️ if this project helped you!
 
 ---
-## Project URL
-[GitHub Repository](https://github.com/saniashafeeq/cinema-booking-system)
-
 ## Project Flow Idea
 https://roadmap.sh/projects/movie-reservation-system
-
-Made by Sania Shafeeq
