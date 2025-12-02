@@ -39,22 +39,58 @@ const addMovie = async (req, res) => {
 };
 
 
-const getallMovie = async(req, res)=>{
-    try{
-        const sql = "SELECT * FROM movies"
-        db.query(sql,(error, results)=>{
-            if (error){
-                console.error("Error getting the movies", error)
-                return res.status(400).json({message:"Failed to fetch"})
-            }
-            return res.status(200).json({message:"List of movies:",movie:results})
-        })
+// const getallMovie = async(req, res)=>{
+//     try{
+//         const sql = "SELECT * FROM movies"
+//         db.query(sql,(error, results)=>{
+//             if (error){
+//                 console.error("Error getting the movies", error)
+//                 return res.status(400).json({message:"Failed to fetch"})
+//             }
+//             return res.status(200).json({message:"List of movies:",movie:results})
+//         })
 
-    }catch(error){
-        console.error("Error while getting the movie",error)
-        return res.status(500).json({message:"Internal Server Error"})
+//     }catch(error){
+//         console.error("Error while getting the movie",error)
+//         return res.status(500).json({message:"Internal Server Error"})
+//     }
+// }
+const getallMovie = async(req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+    
+    try {
+        // Get total count
+        db.query("SELECT COUNT(*) as total FROM movies", (err, countResult) => {
+            if (err) return res.status(500).json({ message: "Database error" });
+            
+            const total = countResult[0].total;
+            
+            // Get paginated results
+            const sql = "SELECT * FROM movies LIMIT ? OFFSET ?";
+            db.query(sql, [limit, offset], (error, results) => {
+                if (error) {
+                    return res.status(500).json({ message: "Failed to fetch" });
+                }
+                
+                return res.status(200).json({
+                    message: "List of movies",
+                    movies: results,
+                    pagination: {
+                        page,
+                        limit,
+                        total,
+                        totalPages: Math.ceil(total / limit)
+                    }
+                });
+            });
+        });
+    } catch(error) {
+        return res.status(500).json({ message: "Internal Server Error" });
     }
 }
+
 
 const getMovieById = async(req, res)=>{
     const { movie_id } = req.params;  
