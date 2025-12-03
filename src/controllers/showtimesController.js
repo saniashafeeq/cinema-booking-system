@@ -4,16 +4,32 @@ const jwt = require("jsonwebtoken")
 const db = require("../config/db")
 
 const Addshowtimes = async(req, res)=>{
-    const {movie_id, auditorium_id, ticket_price} = req.body
+    const {movie_id, auditorium_id, ticket_price} = req.body;
+
+    // ✅ Add input validation
+    if (!movie_id || !auditorium_id || !ticket_price) {
+        return res.status(400).json({
+            message: "All fields are required: movie_id, auditorium_id, ticket_price"
+        });
+    }
+
+    if (typeof ticket_price !== 'number' || ticket_price <= 0) {
+        return res.status(400).json({ 
+            message: "ticket_price must be a positive number" 
+        });
+    }
+
 
     try {
         const sql = "INSERT INTO showtimes (movie_id, auditorium_id, ticket_price) VALUES (?,?,?)"
         db.query(sql, [movie_id, auditorium_id, ticket_price], (error, results)=>{
-            console.error("Error while adding showtimes", error)
+            if (error){
+                console.error("Error while adding showtimes", error)
             return res.status(400).json({message:"Failed to add"})
+            }
+            return res.status(200).json({message:"Showtime added successfully"})
         })
-        return res.status(200).json({message:"Showtime added successfully"})
-
+       
     }catch(error){
         console.error("Error whhile connecting to database", error)
         return res.status(500).json({message:"Internal Server Error"})
@@ -40,6 +56,12 @@ const Getshowtimes = async (req, res) => {
 const Deleteshowtimes = async (req, res) => {
     const { showtime_id } = req.params;
 
+        // ✅ Validation
+        if (!showtime_id || isNaN(showtime_id)) {
+            return res.status(400).json({ message: "Valid showtime_id is required" });
+        }
+    
+
     try {
         const sql = "DELETE FROM showtimes WHERE showtime_id = ?";
         db.query(sql, [showtime_id], (error, results) => {
@@ -61,6 +83,23 @@ const Deleteshowtimes = async (req, res) => {
 const Updateshowtimes = async (req, res) => {
     const { showtime_id } = req.params;
     const { movie_id, auditorium_id, ticket_price } = req.body;
+
+    // ✅ Validation
+    if (!showtime_id || isNaN(showtime_id)) {
+        return res.status(400).json({ message: "Valid showtime_id is required" });
+    }
+
+    if (!movie_id && !auditorium_id && !ticket_price) {
+        return res.status(400).json({ 
+            message: "At least one field is required to update" 
+        });
+    }
+
+    if (ticket_price && (typeof ticket_price !== 'number' || ticket_price <= 0)) {
+        return res.status(400).json({ 
+            message: "ticket_price must be a positive number" 
+        });
+    }
 
     try {
         let updates = [];

@@ -10,6 +10,13 @@ const addMovie = async (req, res) => {
         return res.status(400).json({ message: "All fields are required: title, description, poster_url, genre_id, duration_minutes" });
     }
 
+
+    if (typeof duration_minutes !== 'number' || duration_minutes <= 0) {
+        return res.status(400).json({ 
+            message: "duration_minutes must be a positive number" 
+        });
+    }
+
     try {
         const genreCheckQuery = "SELECT genre_id FROM genres WHERE genre_id = ?";
         db.query(genreCheckQuery, [genre_id], (error, results) => {
@@ -94,6 +101,10 @@ const getallMovie = async(req, res) => {
 
 const getMovieById = async(req, res)=>{
     const { movie_id } = req.params;  
+    // ✅ Validation
+    if (!movie_id || isNaN(movie_id)) {
+        return res.status(400).json({ message: "Valid movie_id is required" });
+    }
 
     try{
         const sql = "SELECT * FROM movies WHERE movie_id = ?";
@@ -118,6 +129,23 @@ const getMovieById = async(req, res)=>{
 const updateMovieById = async (req, res) => {
     const {movie_id} = req.params;
     const { title, description, poster_url, genre_id, duration_minutes } = req.body;
+    
+    // ✅ Validation
+    if (!movie_id || isNaN(movie_id)) {
+        return res.status(400).json({ message: "Valid movie_id is required" });
+    }
+
+    if (!title && !description && !poster_url && !genre_id && !duration_minutes) {
+        return res.status(400).json({ 
+            message: "At least one field is required to update" 
+        });
+    }
+
+    if (duration_minutes && (typeof duration_minutes !== 'number' || duration_minutes <= 0)) {
+        return res.status(400).json({ 
+            message: "duration_minutes must be a positive number" 
+        });
+    }
 
     try {
         let updates = [];
@@ -167,6 +195,12 @@ const updateMovieById = async (req, res) => {
 
 const deleteMovieById = async (req, res) => {
     const { movie_id } = req.params;  // Get movie_id from request params
+
+    // ✅ Validation
+    if (!movie_id || isNaN(movie_id)) {
+        return res.status(400).json({ message: "Valid movie_id is required" });
+    }
+
 
     try {
         const sql = "DELETE FROM movies WHERE movie_id = ?";

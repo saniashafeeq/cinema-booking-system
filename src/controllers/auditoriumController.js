@@ -30,7 +30,6 @@ const AddAuditorium = async (req, res) => {
     }
 };
 
-
 const UpdateAuditorium = async (req, res) => {
     const { auditorium_id } = req.params;
     const { auditorium_name, total_seats } = req.body;
@@ -59,7 +58,6 @@ const UpdateAuditorium = async (req, res) => {
         const sql = `UPDATE auditoriums SET ${updates.join(", ")} WHERE auditorium_id = ?`;
         values.push(auditorium_id);  // Ensure the auditorium_id is in the query
 
-        // Debug: Log the query to check it
         console.log("SQL Query: ", sql);
         console.log("Values: ", values);
 
@@ -121,7 +119,5 @@ const DeleteAudi = async(req, res)=>{
         return res.status(500).json({message:"Internal Server Error"})
     }
 }
-
-
 
 module.exports = {AddAuditorium, UpdateAuditorium, getAudi, DeleteAudi}

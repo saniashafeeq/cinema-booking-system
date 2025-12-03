@@ -4,7 +4,15 @@ const db = require("../config/db")
 const dotenv = require("dotenv")
 
 const AddSeats = async(req, res)=>{
-    const {auditorium_id, seat_number, is_vip} = req.body
+    const {auditorium_id, seat_number, is_vip} = req.body;
+
+     // ✅ Validation
+     if (!auditorium_id || !seat_number || is_vip === undefined) {
+        return res.status(400).json({
+            message: "All fields are required: auditorium_id, seat_number, is_vip"
+        });
+    }
+
     try{
         const sql = "INSERT INTO seats (auditorium_id, seat_number, is_vip) VALUES (?,?,?)"
         db.query(sql,[auditorium_id, seat_number, is_vip],(error, results)=>{
@@ -43,6 +51,12 @@ const GetSeats = async(req, res)=>{
 
 const DeleteSeats = async (req, res) => {
     const { seat_id } = req.params; // Get seat_id from URL parameter
+
+    // ✅ Validation
+    if (!seat_id || isNaN(seat_id)) {
+        return res.status(400).json({ message: "Valid seat_id is required" });
+    }
+
     try {
         const sql = "DELETE FROM seats WHERE seat_id = ?";
         db.query(sql, [seat_id], (error, results) => {
@@ -68,6 +82,18 @@ const DeleteSeats = async (req, res) => {
 const UpdateSeats = async(req, res)=>{
     const { seat_id } = req.params;
     const {auditorium_id, seat_number, is_vip} = req.body;
+
+    // ✅ Validation
+    if (!seat_id || isNaN(seat_id)) {
+        return res.status(400).json({ message: "Valid seat_id is required" });
+    }
+
+    if (!auditorium_id && !seat_number && is_vip === undefined) {
+        return res.status(400).json({ 
+            message: "At least one field is required to update" 
+        });
+    }
+    
     try{
         let updates = [];
         let values = [];

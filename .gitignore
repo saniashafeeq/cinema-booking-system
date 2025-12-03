@@ -25,9 +25,6 @@ Thumbs.db
 *.swp
 *.swo
 
-# Uploads folder (if contains user data)
-uploads/
-
 # Build files
 dist/
 build/

@@ -9,7 +9,28 @@ const path = require("path"); // Path module
 
 
 const AddReservation = async(req, res)=>{
-    const {user_id, showtime_id, total_amount, status} = req.body
+    const {user_id, showtime_id, total_amount, status} = req.body;
+    // ✅ Validation
+    if (!user_id || !showtime_id || !total_amount || !status) {
+        return res.status(400).json({
+            message: "All fields are required: user_id, showtime_id, total_amount, status"
+        });
+    }
+
+    if (typeof total_amount !== 'number' || total_amount <= 0) {
+        return res.status(400).json({ 
+            message: "total_amount must be a positive number" 
+        });
+    }
+
+    const validStatuses = ['Pending', 'Confirmed', 'Cancelled', 'Paid'];
+    if (!validStatuses.includes(status)) {
+        return res.status(400).json({
+            message: `status must be one of: ${validStatuses.join(', ')}`
+        });
+    }
+
+
     try{
         const sql = "INSERT INTO reservations (user_id, showtime_id, total_amount, status ) VALUES (?,?,?,?)"
         db.query(sql, [user_id, showtime_id, total_amount, status], (error, results)=>{
@@ -46,6 +67,11 @@ const GetReservation = async(req, res)=>{
 
 const DeleteReservation = async(req, res)=>{
     const {reservation_id} = req.params;
+    // ✅ Validation
+    if (!reservation_id || isNaN(reservation_id)) {
+        return res.status(400).json({ message: "Valid reservation_id is required" });
+    }
+
 
     try{
         const sql = "DELECT * FROM reservations WHERE reservation_id =? "
@@ -66,7 +92,32 @@ const DeleteReservation = async(req, res)=>{
 const UpdateReservation = async(req, res)=>{
     const {reservation_id} = req.params
 
-    const {user_id, showtime_id, total_amount, status} = req.body
+    const {user_id, showtime_id, total_amount, status} = req.body;
+
+    if (!reservation_id || isNaN(reservation_id)) {
+        return res.status(400).json({ message: "Valid reservation_id is required" });
+    }
+
+    if (!user_id && !showtime_id && !total_amount && !status) {
+        return res.status(400).json({ 
+            message: "At least one field is required to update" 
+        });
+    }
+
+    if (total_amount && (typeof total_amount !== 'number' || total_amount <= 0)) {
+        return res.status(400).json({ 
+            message: "total_amount must be a positive number" 
+        });
+    }
+
+    if (status) {
+        const validStatuses = ['Pending', 'Confirmed', 'Cancelled', 'Paid'];
+        if (!validStatuses.includes(status)) {
+            return res.status(400).json({
+                message: `status must be one of: ${validStatuses.join(', ')}`
+            });
+        }
+    }
 
     try{
         let updates = [];
