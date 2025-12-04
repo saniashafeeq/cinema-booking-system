@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 const db = require("../config/db");
+const logger = require("../config/logger"); // ✅ ADD THIS
 
 dotenv.config();
 
@@ -60,10 +61,70 @@ const signup = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+// const login = async (req, res) => {
+//   const { username, password } = req.body;
+
+//   if (!username || !password) {
+//     return res.status(400).json({ message: "Username and password are required!" });
+//   }
+
+//   try {
+//     const sql = "SELECT * FROM users WHERE username = ?";
+//     db.query(sql, [username], async (err, results) => {
+//       if (err) {
+//         console.log("Error while fetching user:", err);
+//         return res.status(500).json({ message: "Server Error" });
+//       }
+
+//       if (results.length === 0) {
+//         console.log("❌ No user found with that username");
+//         return res.status(401).json({ message: "Invalid username or password" });
+//       }
+
+//       const user = results[0];
+//       console.log("✅ User found:", user);
+//       console.log("Password entered:", password);
+//       console.log("Password stored in DB:", user.password);
+
+//       const isMatch = await bcrypt.compare(password, user.password);
+//       console.log("Password match:", isMatch);  // Log the result of comparison
+
+//       if (!isMatch) {
+//         return res.status(401).json({ message: "Invalid username or password" });
+//       }
+
+//       const token = jwt.sign(
+//         { 
+//             user_id: user.user_id,
+//             email: user.email,
+//             role_id: user.role_id  // ✅ Make sure this is included
+//         },
+//         process.env.JWT_SECRET,
+//         { expiresIn: '1h' }
+//       );
+
+//       return res.status(200).json({
+//         message: "Login Successful",
+//         token,
+//         user: {
+//           id: user.user_id,
+//           username: user.username,
+//           email: user.email,
+//           role_id: user.role_id,
+//         },
+//       });
+//     });
+//   } catch (err) {
+//     console.log("Something went wrong", err);
+//     return res.status(500).json({ message: "Internal Server Error" });
+//   }
+// };
+
 const login = async (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
+    logger.warn('Login attempt with missing credentials');
     return res.status(400).json({ message: "Username and password are required!" });
   }
 
@@ -71,24 +132,20 @@ const login = async (req, res) => {
     const sql = "SELECT * FROM users WHERE username = ?";
     db.query(sql, [username], async (err, results) => {
       if (err) {
-        console.log("Error while fetching user:", err);
+        logger.error("Error while fetching user:", { error: err.message });
         return res.status(500).json({ message: "Server Error" });
       }
 
       if (results.length === 0) {
-        console.log("❌ No user found with that username");
+        logger.warn("Login failed - user not found", { username });
         return res.status(401).json({ message: "Invalid username or password" });
       }
 
       const user = results[0];
-      console.log("✅ User found:", user);
-      console.log("Password entered:", password);
-      console.log("Password stored in DB:", user.password);
-
       const isMatch = await bcrypt.compare(password, user.password);
-      console.log("Password match:", isMatch);  // Log the result of comparison
 
       if (!isMatch) {
+        logger.warn("Login failed - incorrect password", { username });
         return res.status(401).json({ message: "Invalid username or password" });
       }
 
@@ -96,11 +153,16 @@ const login = async (req, res) => {
         { 
             user_id: user.user_id,
             email: user.email,
-            role_id: user.role_id  // ✅ Make sure this is included
+            role_id: user.role_id
         },
         process.env.JWT_SECRET,
         { expiresIn: '1h' }
       );
+
+      logger.info("User logged in successfully", { 
+        user_id: user.user_id, 
+        username: user.username 
+      });
 
       return res.status(200).json({
         message: "Login Successful",
@@ -114,10 +176,11 @@ const login = async (req, res) => {
       });
     });
   } catch (err) {
-    console.log("Something went wrong", err);
+    logger.error("Login error:", { error: err.message, stack: err.stack });
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
 
 const getOwnProfile = async (req, res) => {
   const { user_id } = req.params;  
