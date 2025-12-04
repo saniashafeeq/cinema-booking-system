@@ -145,5 +145,4 @@ const Updateshowtimes = async (req, res) => {
     }
 };
 
-
 module.exports = {Addshowtimes, Getshowtimes, Deleteshowtimes, Updateshowtimes}

@@ -93,7 +93,7 @@ const UpdateSeats = async(req, res)=>{
             message: "At least one field is required to update" 
         });
     }
-    
+
     try{
         let updates = [];
         let values = [];
@@ -134,7 +134,4 @@ const UpdateSeats = async(req, res)=>{
     }
 
 }
-
-
-
 module.exports = {AddSeats, GetSeats, DeleteSeats, UpdateSeats}

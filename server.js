@@ -1,5 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const swaggerUi = require('swagger-ui-express'); // ✅ ADD THIS
+const swaggerSpec = require('../cinema_booking_sys/src/config/swagger'); // ✅ ADD THIS
 const authRoutes = require("../cinema_booking_sys/src/routes/authRoutes");
 const genresRoutes = require("../cinema_booking_sys/src/routes/genresRoutes")
 const movieRoutes = require("../cinema_booking_sys/src/routes/movieRoutes");
@@ -15,6 +17,19 @@ const port = 9000
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
+
+
+// ✅ ADD THIS - Swagger Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'Cinema Booking API Docs'
+}));
+
+// ✅ ADD THIS - Swagger JSON endpoint
+app.get('/api-docs.json', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerSpec);
+});
 
 app.use('/api/user',authRoutes);
 app.use('/api/genres',genresRoutes)
