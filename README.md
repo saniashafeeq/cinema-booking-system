@@ -252,6 +252,9 @@ Content-Type: application/json
 }
 ```
 
+## Loggers
+Add Proper Logging with Winston
+
 ## 🔧 Dependencies
 ```json
 {
