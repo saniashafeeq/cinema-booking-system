@@ -253,7 +253,10 @@ Content-Type: application/json
 ```
 
 ## Loggers
-Add Proper Logging with Winston
+Add Proper Logging with Winston. This will help with debugging, monitoring, and looks great in production!
+
+## API Documentation with Swagger
+Add professional, interactive API documentation. This will make project look super professional.
 
 ## 🔧 Dependencies
 ```json
